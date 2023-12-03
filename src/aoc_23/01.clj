@@ -1,47 +1,39 @@
 (ns aoc-23.01
   (:require
+   [aoc-23.util :refer [get-puzzle-input]]
    [clojure.string :as str]))
 
 
-(def digits (set "0123456789"))
-(def number-words {"zero" 0,
-                   "one" 1,
-                   "two" 2,
-                   "three" 3,
-                   "four" 4,
-                   "five" 5,
-                   "six" 6,
-                   "seven" 7,
-                   "eight" 8,
-                   "nine" 9})
+(def ^:private number-literals
+  (merge
+   (into {} (for [n (range 10)] [(str n) n]))
+   {"zero" 0, "one" 1, "two" 2, "three" 3, "four" 4, "five" 5, "six" 6, "seven" 7, "eight" 8, "nine" 9}))
 
 
-(defn find-digit-numbers [line]
-  (let [only-digits (filter digits line)]
-    (map parse-long [(first only-digits) (last only-digits)])))
+(defn- find-first-and-last-occurence
+  "Given any collection of string `literals`, return the ones that occur first
+  and last in the given string `s` as a vector of two elements."
+  [literals s]
+  (let [joined-literals (str/join "|" literals)
+        find-first #(second (re-find (re-pattern (format "^.*?(%s)" joined-literals)) %))
+        find-last #(second (re-find (re-pattern (format "^.*(%s)" joined-literals)) %))]
+    [(find-first s) (find-last s)]))
 
 
-(let [[find-first-number find-last-number]
-      (->> (str/join "|" (concat digits (keys number-words)))
-           (#(-> [(format "^.*?(%s).*$" %) (format "^.*(%s).*$" %)]))
-           (map (fn [pattern]
-                  (fn [line]
-                    (let [match (second (re-find (re-pattern pattern) line))]
-                      (or (number-words match) (parse-long match)))))))]
-  (defn find-digit-or-word-numbers [line]
-    [(find-first-number line) (find-last-number line)]))
-
-
-(defn sum-up-calibration-values
-  "Given a function `find-numbers` that returns a seq of the first and the last
-  \"number\" in a line, calculate the sum of all the calibration values for the
-  given `lines`."
-  [find-numbers lines]
-  (->> lines
-       (map find-numbers)
+(defn- sum-up-calibration-values
+  "Given a collection of acceptable number `literals`, return the sum of the calibration
+  values for the given `lines.`"
+  [literals lines]
+  (->> (map (partial find-first-and-last-occurence literals) lines)
+       (map (partial map number-literals))
        (map (fn [[x y]] (+ (* 10 x) y)))
        (apply +)))
 
 
-(def part-1 (partial sum-up-calibration-values find-digit-numbers))
-(def part-2 (partial sum-up-calibration-values find-digit-or-word-numbers))
+(def part-1 (partial sum-up-calibration-values "0123456789"))
+(def part-2 (partial sum-up-calibration-values (keys number-literals)))
+
+
+(let [lines (-> (get-puzzle-input 1) (str/split-lines))]
+  (println "Part 1: " (part-1 lines))
+  (println "Part 2: " (part-2 lines)))
