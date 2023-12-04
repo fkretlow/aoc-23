@@ -39,3 +39,7 @@
   and the next line, in the form `[i start end]`."
   [length]
   (for [i (range length)] [i (max (dec i) 0) (min (+ 2 i) length)]))
+
+
+(defn exp [b e]
+  (apply * (repeat e b)))
