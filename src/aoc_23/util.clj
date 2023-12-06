@@ -1,6 +1,7 @@
 (ns aoc-23.util
   (:require
-   [clojure.java.io :as io]))
+   [clojure.java.io :as io]
+   [clojure.math :refer [ceil]]))
 
 
 (defn get-puzzle-input [n & flags]
@@ -8,17 +9,6 @@
     (-> (str "input/" (format "%02d" n) (when test? ".test") ".txt")
         io/resource
         slurp)))
-
-
-(defn merge-max
-  "Given any number of maps whose values are comparable with `max`, merge them
-  in such a way that the result contains all keys and if any two maps contain
-  a key, it is mapped to the greater of the two values."
-  [& ms]
-  (reduce
-   #(reduce (fn [m [k v]] (let [v (if (m k) (max (m k) v) v)] (assoc m k v))) %1 %2)
-   (first ms)
-   (next ms)))
 
 
 (defn re-seq-pos
@@ -45,12 +35,12 @@
   (apply * (repeat e b)))
 
 
-(defn parse-longs 
+(defn parse-longs
   "Return a lazy seq of all the integers in the string `s`, e.g. `\"a 12 b 3.4\"` -> `(12 3 4)`"
   [s] (map parse-long (re-seq #"\d+" s)))
 
 
-(defn merge-ranges 
+(defn merge-ranges
   "Given any number of half open integer intervals of the form `[start end]`
   (end non-inclusive), reduce them to a set of non-overlapping ranges.
   E.g. `[1 3] [5 7] [2 4]` -> `([1 4] [5 7])`"
@@ -65,3 +55,10 @@
           (conj acc r)))
       nil
       (sort (map vec rs))))))
+
+
+(defn next-greater-int
+  "Return the closest integer strictly greater than `x`."
+  [x]
+  (let [n (int (ceil x))]
+    (if (= (int x) n) (inc n) n)))

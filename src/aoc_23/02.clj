@@ -1,6 +1,6 @@
 (ns aoc-23.02
   (:require
-   [aoc-23.util :refer [get-puzzle-input merge-max]]
+   [aoc-23.util :refer [get-puzzle-input]]
    [clojure.string :as str]))
 
 
@@ -27,7 +27,7 @@
   [bag-contents game]
   (every?
    (fn [[color number]] (<= number (get bag-contents color 0)))
-   (apply merge-max (:cube-sets game))))
+   (apply (partial merge-with max) (:cube-sets game))))
 
 
 (defn part-1 [games]
@@ -39,7 +39,7 @@
 
 (defn part-2 [games]
   (->> (map :cube-sets games)
-       (map #(apply merge-max %))
+       (map #(apply (partial merge-with max) %))
        (map vals)
        (map #(apply * %))
        (apply +)))
