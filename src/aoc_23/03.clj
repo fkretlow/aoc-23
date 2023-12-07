@@ -30,7 +30,7 @@
 
 
 (defn- find-part-numbers [lines]
-  (->> (for [[i start end] (window-indices (count lines)),
+  (->> (for [[i start end] (window-indices 1 (count lines)),
              :let [window (subvec lines start end),
                    numbers (:numbers (lines i))]]
          (filter (partial is-adjacent-to-symbol? window) numbers))
@@ -52,7 +52,7 @@
 
 
 (defn part-2 [lines]
-  (->> (for [[i start end] (window-indices (count lines)),
+  (->> (for [[i start end] (window-indices 1 (count lines)),
              :let [window (subvec lines start end)
                    stars (filter #(= \* (:symbol %)) (:symbols (lines i)))]]
          (filter some? (map (partial calculate-ratio-when-gear window) stars)))

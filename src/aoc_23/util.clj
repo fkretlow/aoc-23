@@ -24,11 +24,13 @@
 
 
 (defn window-indices
-  "Given the `length` of a vector, return a lazy seq of the indices of all \"windows\" 
-  on the vector that contain the line at position `i` and, if they exist, the previous 
-  and the next line, in the form `[i start end]`."
-  [length]
-  (for [i (range length)] [i (max (dec i) 0) (min (+ 2 i) length)]))
+  "Generate a lazy seq of all \"windows\" with the given `radius` around the elements of a
+  vector or array with the given `length`, in the form `[i start end]`, end non-inclusive.
+  
+  Example:
+  `1 3` -> `[0 0 2] [1 0 3] [2 1 3]`"
+  [radius length]
+  (for [i (range length)] [i (max (- i radius) 0) (min (+ i (inc radius)) length)]))
 
 
 (defn exp [b e]
@@ -62,3 +64,16 @@
   [x]
   (let [n (int (ceil x))]
     (if (= (int x) n) (inc n) n)))
+
+
+(defn pad
+  "Pad `coll` with `x` until it has `n` elements."
+  [n x coll]
+  (take n (concat coll (repeat x))))
+
+
+(defn map-first
+  "Return the result of applying `f` to the first element of `coll`
+  cons'ed onto the rest of `coll`."
+  [f coll]
+  (when (seq coll) (cons (f (first coll)) (rest coll))))
