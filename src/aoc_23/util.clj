@@ -77,3 +77,8 @@
   cons'ed onto the rest of `coll`."
   [f coll]
   (when (seq coll) (cons (f (first coll)) (rest coll))))
+
+
+(defn lcm [& xs]
+  (reduce #(.divide (.multiply %1 %2) (.gcd %1 %2))
+          (map biginteger xs)))
