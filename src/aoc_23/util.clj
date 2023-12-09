@@ -39,7 +39,7 @@
 
 (defn parse-longs
   "Return a lazy seq of all the integers in the string `s`, e.g. `\"a 12 b 3.4\"` -> `(12 3 4)`"
-  [s] (map parse-long (re-seq #"\d+" s)))
+  [s] (map parse-long (re-seq #"-?\d+" s)))
 
 
 (defn merge-ranges
