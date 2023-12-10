@@ -1,6 +1,8 @@
-(ns aoc-23.06
+(ns aoc.23.06
   (:require
-   [aoc-23.util :refer [get-puzzle-input next-greater-int parse-longs]]
+   [aoc.lib.io :refer [get-puzzle-input]]
+   [aoc.lib.math :refer [next-greater-int]]
+   [aoc.lib.parsing :refer [parse-longs]]
    [clojure.math :refer [ceil sqrt]]
    [clojure.string :as str]))
 
@@ -45,7 +47,7 @@
     (- end start)))
 
 
-(let [lines (str/split-lines (get-puzzle-input 6))]
+(let [lines (str/split-lines (get-puzzle-input 23 6))]
   (let [races (apply (partial map vector) (map parse-longs lines))]
     (println "Part 1: " (part-1 races)))
   (let [race (map #(parse-long (apply str (re-seq #"\d+" %))) lines)]

@@ -1,6 +1,8 @@
-(ns aoc-23.05
+(ns aoc.23.05
   (:require
-   [aoc-23.util :refer [get-puzzle-input parse-longs]]
+   [aoc.lib.io :refer [get-puzzle-input]]
+   [aoc.lib.parsing :refer [parse-longs]]
+   [aoc.lib.range :as r]
    [clojure.string :as str])
   (:import
    [java.lang Long]))
@@ -19,15 +21,6 @@
 (defn part-1 [seed-seq map-seqs]
   (let [map-chain-fn (apply comp (reverse (map ->map-fn map-seqs)))]
     (as-> seed-seq seeds (apply min (map map-chain-fn seeds)))))
-
-
-(defn- intersect-ranges [r1 r2]
-  (let [[r1 r2] (sort [r1 r2])]
-    [(max (r1 0) (r2 0)) (min (r1 1) (r2 1))]))
-
-
-(defn- shift-range [d r]
-  [(+ d (r 0)) (+ d (r 1))])
 
 
 (defn- insert-zero-shift-ranges [mapping]
@@ -54,16 +47,16 @@
   (->> mapping
        (drop-while (fn [[r_m]] (<= (r_m 1) (r 0))))
        (take-while (fn [[r_m]] (< (r_m 0) (r 1))))
-       (map (fn [[r_m d_m]] [(intersect-ranges r r_m) d_m]))))
+       (map (fn [[r_m d_m]] [(r/intersect r r_m) d_m]))))
 
 
 (defn- apply-mappings-to-shifted-range [mappings [r d]]
   (if (seq mappings)
     (mapcat
      (partial apply-mappings-to-shifted-range (rest mappings))
-     (->> (shift-range d r)
+     (->> (r/shift d r)
           (apply-mapping-to-range (first mappings))
-          (map (fn [[r' d']] [(shift-range (- d) r') (+ d' d)]))))
+          (map (fn [[r' d']] [(r/shift (- d) r') (+ d' d)]))))
     [[r d]]))
 
 
@@ -81,7 +74,7 @@
          (apply min))))
 
 
-(let [input (get-puzzle-input 5)
+(let [input (get-puzzle-input 23 5)
       [seed-seq & map-seqs] (map parse-longs (str/split input #"\n\n"))]
   (println "Part 1: " (part-1 seed-seq map-seqs))
   (println "Part 2: " (part-2 seed-seq map-seqs)))

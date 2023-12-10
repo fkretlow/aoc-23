@@ -1,6 +1,7 @@
-(ns aoc-23.07
+(ns aoc.23.07
   (:require
-   [aoc-23.util :refer [get-puzzle-input map-first pad]]
+   [aoc.lib.io :refer [get-puzzle-input]]
+   [aoc.lib.seq :refer [map-first pad-end]]
    [clojure.string :as str]))
 
 
@@ -25,7 +26,7 @@
          (vals)
          (sort >)
          (map-first #(+ jokers %))
-         (pad 5 0)
+         (pad-end 5 0)
          (reduce (fn [acc x] (+ (* 10 acc) x))))))
 
 
@@ -58,7 +59,7 @@
    (for [game games] (map-first #(str/replace % \J \*) game))))
 
 
-(let [games (->> (get-puzzle-input 7)
+(let [games (->> (get-puzzle-input 23 7)
                  (str/split-lines)
                  (map #(str/split % #"\s"))
                  (map (fn [[hand bid]] [hand (parse-long bid)])))]

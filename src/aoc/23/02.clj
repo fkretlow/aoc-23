@@ -1,6 +1,6 @@
-(ns aoc-23.02
+(ns aoc.23.02
   (:require
-   [aoc-23.util :refer [get-puzzle-input]]
+   [aoc.lib.io :refer [get-puzzle-input]]
    [clojure.string :as str]))
 
 
@@ -45,6 +45,6 @@
        (apply +)))
 
 
-(let [games (->> (get-puzzle-input 2) (str/split-lines) (map parse-game))]
+(let [games (->> (get-puzzle-input 23 2) (str/split-lines) (map parse-game))]
   (println "Part 1: " (part-1 games))
   (println "Part 2: " (part-2 games)))

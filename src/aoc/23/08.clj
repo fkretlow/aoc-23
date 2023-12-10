@@ -1,6 +1,8 @@
-(ns aoc-23.08
+(ns aoc.23.08
   (:require
-   [aoc-23.util :refer [get-puzzle-input lcm map-first]]
+   [aoc.lib.io :refer [get-puzzle-input]]
+   [aoc.lib.math :refer [lcm]]
+   [aoc.lib.seq :refer [map-first]]
    [clojure.string :as str]))
 
 
@@ -62,7 +64,7 @@
                (last (next-on-path graph instructions #(str/ends-with? % "Z") [v 0 0])))))
 
 
-(let [[instructions vertices] (str/split (get-puzzle-input 8) #"\n\n")
+(let [[instructions vertices] (str/split (get-puzzle-input 23 8) #"\n\n")
       graph (->graph vertices)]
   (println "Part 1: " (part-1 graph instructions))
   (println "Part 2: " (part-2-cheap graph instructions)))

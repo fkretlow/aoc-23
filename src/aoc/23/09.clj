@@ -1,6 +1,7 @@
-(ns aoc-23.09
+(ns aoc.23.09
   (:require
-   [aoc-23.util :refer [get-puzzle-input parse-longs]]
+   [aoc.lib.io :refer [get-puzzle-input]]
+   [aoc.lib.parsing :refer [parse-longs]]
    [clojure.string :as str]))
 
 
@@ -28,7 +29,7 @@
 (defn part-2 [value-seqs] (apply + (map extrapolate-backwards value-seqs)))
 
 
-(let [value-seqs (->> (get-puzzle-input 9)
+(let [value-seqs (->> (get-puzzle-input 23 9)
                       (str/split-lines)
                       (map parse-longs))]
   (println "Part 1: " (part-1 value-seqs))

@@ -1,8 +1,10 @@
-(ns aoc-23.04
+(ns aoc.23.04
   (:require
-   [aoc-23.util :refer [exp get-puzzle-input]]
+   [aoc.lib.io :refer [get-puzzle-input]]
    [clojure.set :refer [intersection]]
-   [clojure.string :as str]))
+   [clojure.string :as str])
+  (:import
+   [java.lang Math]))
 
 
 (defn- parse-number-set [number-string]
@@ -20,7 +22,7 @@
 
 (defn part-1 [scores]
   (->> (remove zero? scores)
-       (map #(exp 2 (dec %)))
+       (map #(int (Math/pow 2 (dec %))))
        (apply +)))
 
 
@@ -35,7 +37,7 @@
       acc)))
 
 
-(let [scores (->> (get-puzzle-input 4)
+(let [scores (->> (get-puzzle-input 23 4)
                   (str/split-lines)
                   (map parse-and-evaluate-card))]
   (println "Part 1: " (part-1 scores))

@@ -1,6 +1,8 @@
-(ns aoc-23.03
+(ns aoc.23.03
   (:require
-   [aoc-23.util :refer [window-indices get-puzzle-input re-seq-pos]]
+   [aoc.lib.io :refer [get-puzzle-input]]
+   [aoc.lib.parsing :refer [re-seq-pos]]
+   [aoc.lib.seq :refer [window-indices]]
    [clojure.string :as str]))
 
 
@@ -60,6 +62,6 @@
        (apply +)))
 
 
-(let [lines (->> (get-puzzle-input 3) str/split-lines (map parse-line) vec)]
+(let [lines (->> (get-puzzle-input 23 3) str/split-lines (map parse-line) vec)]
   (println "Part 1: " (part-1 lines))
   (println "Part 2: " (part-2 lines)))
