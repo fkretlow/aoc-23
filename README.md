@@ -1,4 +1,3 @@
-# Advent of Code 2023
+# Advent of Code
 
-Solutions for the [Advent of Code 2023](https://adventofcode.com/2023) in
-Clojure.
+Solutions for the [Advent of Code](https://adventofcode.com) in Clojure.
