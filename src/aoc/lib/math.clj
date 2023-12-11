@@ -13,4 +13,3 @@
   [x]
   (let [n (int (ceil x))]
     (if (= (int x) n) (inc n) n)))
-
