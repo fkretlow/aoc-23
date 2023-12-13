@@ -50,8 +50,22 @@
   (first (filter pred coll)))
 
 
-(defn all-pairs [coll]
+(defn all-pairs 
+  "Return a seq of all distinct unordered pairs of elements of coll."
+  [coll]
   (let [v (if (vector? coll) coll (vec coll))]
     (for [i (range (count v))
           j (range (inc i) (count v))]
       [(v i) (v j)])))
+
+
+(defn one? 
+  "Like some? but returns true only when exactly one element of coll matches pred."
+  [pred coll]
+  (loop [found? false
+         coll coll]
+    (if (seq coll)
+      (if (pred (first coll))
+        (if found? false (recur true (rest coll)))
+        (recur found? (rest coll)))
+      found?)))
