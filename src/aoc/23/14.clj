@@ -28,7 +28,7 @@
         :right (apply str (concat (repeat (- (count segment) rocks) \.) (repeat rocks \O)))))))
 
 
-(defn- tilt-line 
+(defn- tilt-line
   "Given a whole line, shift all rounded rocks as far to the left or right as possible.
   Example: :left '.O##..O' -> 'O.##O..'"
   [direction line]
@@ -37,7 +37,7 @@
        (apply str)))
 
 
-(defn- tilt-platform 
+(defn- tilt-platform
   "Tilt the platform in the given direction and shift all rounded rocks accordingly."
   [direction platform]
   (case direction
@@ -47,7 +47,7 @@
     :east (map (partial tilt-line :right) platform)))
 
 
-(defn northern-rock-weight 
+(defn northern-rock-weight
   "Compute the weight applied to the northern support beams."
   [platform]
   (->> (map #(count (re-seq #"O" %)) platform)
@@ -60,7 +60,7 @@
   (northern-rock-weight (tilt-platform :north platform)))
 
 
-(defn apply-tilting-cycle 
+(defn apply-tilting-cycle
   "Tilt the platform north, west, south, and east and return its resulting
   rock layout."
   [platform]
@@ -90,6 +90,64 @@
     (northern-rock-weight platform')))
 
 
-(let [platform (str/split-lines (get-puzzle-input 23 14))]
-  (println "Part 1: " (part-1 platform))
-  (println "Part 2: " (part-2 platform 1000000000)))
+; (let [platform (str/split-lines (get-puzzle-input 23 14))]
+;   (println "Part 1: " (part-1 platform))
+;   (println "Part 2: " (part-2 platform 1000000000)))
+
+
+(defn char-matrix [lines]
+  (assert (apply = (map count lines)) "lines have different lengths")
+  (into-array (map char-array lines)))
+
+
+(defn mset! [m [i j] x] (aset m i j x))
+(defn mget [m [i j]] (aget m i j))
+
+
+(defn mfind [pred m]
+  (for [i (range (count m)), j (range (count (first m)))
+        :when (pred (mget m [i j]))]
+    (int-array [i j])))
+
+
+(defn v+ [p d] (int-array (map + p d)))
+(defn up [p] (v+ p (int-array [0 -1])))
+(defn down [p] (v+ p (int-array [0 1])))
+(defn left [p] (v+ p (int-array [-1 0])))
+(defn right [p] (v+ p (int-array [1 0])))
+
+
+(def lines ["O....#...."
+            "O.OO#....#"
+            ".....##..."
+            "OO.#O....O"
+            ".O.....O#."
+            "O.#..O.#.#"
+            "..O..#O..O"
+            ".......O.."
+            "#....###.."
+            "#OO..#...."])
+
+
+(def platform (char-matrix lines))
+
+(defn segments [direction platform]
+  (let [pos-of-#s (->> (mfind #(= \# %) platform)
+                       (reduce (fn [m [i j]] (update m i #(if % (conj % j) [j]))) {}))]
+    pos-of-#s))
+
+(segments :horizontal platform)
+
+
+(defn split-range
+  "Split the integer range r in such a way that it does not include any of
+  the integer ranges rs.
+  Example: [0 5], [1 2] [3 4] -> [0 1] [2 3] [4 5]"
+  [r & rs])
+
+
+(let [r [0 5]
+      splits [1 2 3]
+      splits' (mapcat #(-> [% (inc %)]) splits)
+      indexes (sort (concat r splits'))]
+  (partition 2 indexes))
