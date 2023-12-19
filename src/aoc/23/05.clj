@@ -47,7 +47,7 @@
   (->> mapping
        (drop-while (fn [[r_m]] (<= (r_m 1) (r 0))))
        (take-while (fn [[r_m]] (< (r_m 0) (r 1))))
-       (map (fn [[r_m d_m]] [(r/intersect r r_m) d_m]))))
+       (map (fn [[r_m d_m]] [(r/intersection r r_m) d_m]))))
 
 
 (defn- apply-mappings-to-shifted-range [mappings [r d]]
