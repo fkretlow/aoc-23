@@ -69,3 +69,7 @@
         (if found? false (recur true (rest coll)))
         (recur found? (rest coll)))
       found?)))
+
+
+(defn min-of-nilable [& xs]
+  (apply min (remove nil? xs)))
