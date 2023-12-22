@@ -1,6 +1,7 @@
 (ns aoc.23.10
   (:require
    [aoc.lib.io :refer [get-puzzle-input]]
+   [aoc.lib.math :refer [shoelace]]
    [aoc.lib.matrix :refer [char-matrix mfind mget mshape v*scalar v+ v-]]
    [aoc.lib.seq :refer [find-first]]
    [clojure.string :as str]))
@@ -81,17 +82,6 @@
         (recur (rest path) (conj! corners p) straight-segments))
       {:corners (count corners)
        :straight-segments (count straight-segments)})))
-
-
-(defn- shoelace
-  "https://en.wikipedia.org/wiki/Shoelace_formula"
-  [path]
-  (abs
-   (reduce
-    (fn [acc [[i1 j1] [i2 j2]]]
-      (+ acc (/ (* (+ j1 j2) (- i1 i2)) 2.0)))
-    0
-    (partition 2 1 path))))
 
 
 (defn- part-2
