@@ -24,7 +24,7 @@
   (for [i (range length)] [i (max (- i radius) 0) (min (+ i (inc radius)) length)]))
 
 
-(defn take-until 
+(defn take-until
   "Like take-while, but includes the first element for which pred is true."
   [pred coll]
   (lazy-seq
@@ -34,7 +34,7 @@
        (cons (first s) (take-until pred (rest s)))))))
 
 
-(defn drop-until 
+(defn drop-until
   "Like drop-while, but also drops the first element for which pred is true."
   [pred coll]
   (lazy-seq
@@ -50,7 +50,7 @@
   (first (filter pred coll)))
 
 
-(defn all-pairs 
+(defn all-pairs
   "Return a seq of all distinct unordered pairs of elements of coll."
   [coll]
   (let [v (if (vector? coll) coll (vec coll))]
@@ -59,7 +59,7 @@
       [(v i) (v j)])))
 
 
-(defn one? 
+(defn one?
   "Like some? but returns true only when exactly one element of coll matches pred."
   [pred coll]
   (loop [found? false
@@ -73,3 +73,7 @@
 
 (defn min-of-nilable [& xs]
   (apply min (remove nil? xs)))
+
+
+(defn mapvals [f m] (into {} (for [[k v] m] [k (f v)])))
+
