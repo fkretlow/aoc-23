@@ -49,6 +49,12 @@
       [i j])))
 
 
+(defn inside? [m p]
+  (let [[h w] (mshape m)]
+    (and (<= 0 (p 0) (dec h))
+         (<= 0 (p 1) (dec w)))))
+
+
 (defn v+ [& vs] (mapv (partial apply +) (apply (partial map vector) vs)))
 (defn v- [& vs] (mapv (partial apply -) (apply (partial map vector) vs)))
 (defn v*scalar [v x] (mapv #(* x %) v))
