@@ -77,3 +77,9 @@
 
 (defn mapvals [f m] (into {} (for [[k v] m] [k (f v)])))
 
+
+(defn count-unique
+  "Given a seq of elements, count how often each unique element appears in the seq
+  and return the results as a map."
+  [xs]
+  (reduce (fn [counts x] (update counts x #(if % (inc %) 1))) {} xs))
