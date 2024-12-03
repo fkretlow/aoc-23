@@ -44,6 +44,12 @@
        (drop-until pred (rest coll))))))
 
 
+(defn drop-nth
+  "Drop the nth element of a collection."
+  [n coll]
+  (keep-indexed (fn [i x] (when-not (= n i) x)) coll))
+
+
 (defn find-first
   "Find the first element of coll that satisfies pred."
   [pred coll]
