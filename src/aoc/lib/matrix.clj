@@ -37,9 +37,8 @@
 
 (defn mget [m [i j]] (aget m i j))
 (defn mset [m [i j] x] (aset m i j x))
-
-
 (defn mshape [m] [(count m) (count (first m))])
+(defn mhas? [m [i j]] (let [[h w] (mshape m)] (and (<= 0 i (dec h)) (<= 0 j (dec w)))))
 
 
 (defn mfind [m pred]
