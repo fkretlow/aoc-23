@@ -89,3 +89,17 @@
   and return the results as a map."
   [xs]
   (reduce (fn [counts x] (update counts x #(if % (inc %) 1))) {} xs))
+
+
+(defn join-connected
+  "Given a predicate `connected?` that decides whether two consecutive elements of `coll`
+  are connected, split the collection into vectors of consecutive connected elements."
+  [connected? coll]
+  (loop [segments []
+         segment []
+         [cur & more] coll]
+    (if (some? cur)
+      (if (or (empty? segment) (connected? (peek segment) cur))
+        (recur segments (conj segment cur) more)
+        (recur (conj segments segment) [cur] more))
+      (conj segments segment))))

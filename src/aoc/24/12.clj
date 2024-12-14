@@ -1,28 +1,13 @@
 (ns aoc.24.12
   (:require
    [aoc.lib.io :refer [get-puzzle-input]]
-   [aoc.lib.matrix :refer [char-matrix mget mshape]]
+   [aoc.lib.matrix :refer [char-matrix mget mshape v+]]
    [aoc.lib.queue :refer [queue]]
+   [aoc.lib.seq :refer [join-connected]]
    [clojure.string :as str]))
 
 
-(def ^:private test-input
-  "RRRRIICCFF
-RRRRIICCCF
-VVRRRCCFFF
-VVRCCCJFFF
-VVVVCJJCFE
-VVIVCCJJEE
-VVIIICJJEE
-MIIIIIJJEE
-MIIISIJEEE
-MMMISSJEEE")
-
-
-(def ^:private dirs [(fn north [[i j]] [(dec i) j])
-                     (fn east [[i j]] [i (inc j)])
-                     (fn south [[i j]] [(inc i) j])
-                     (fn west [[i j]] [i (dec j)])])
+(def ^:private dirs {:n [-1 0], :e [0 1], :s [1 0], :w [0 -1]})
 
 
 (defn find-regions
@@ -47,17 +32,17 @@ MMMISSJEEE")
           (if (visited? pos)
             (recur regions region region-queue' global-queue visited?)
             (let [plant (mget grid pos)
-                  region (or region {:plant plant, :plots 0, :fences 0})
-                  {:keys [same-region-plots other-region-plots]}
-                  (->> (map #(% pos) dirs)
-                       (group-by (fn [pos'] (cond (off-grid? pos') :off-grid-plots,
-                                                  (= plant (mget grid pos')) :same-region-plots,
-                                                  :else :other-region-plots))))
-                  fences (- 4 (count same-region-plots))]
+                  region (or region {:plant plant, :plots [] , :fences []})
+                  {:keys [same-region-plots other-region-plots off-grid-plots]}
+                  (->> (map (fn [[k d]] [k (v+ d pos)]) dirs)
+                       (group-by (fn [[_k pos']] (cond (off-grid? pos') :off-grid-plots,
+                                                       (= plant (mget grid pos')) :same-region-plots,
+                                                       :else :other-region-plots))))
+                  fences (concat other-region-plots off-grid-plots)]
               (recur regions
-                     (-> region (update :plots inc) (update :fences #(+ fences %)))
-                     (reduce conj region-queue' same-region-plots)
-                     (reduce conj global-queue other-region-plots)
+                     (-> region (update :plots #(conj % pos)) (update :fences #(apply conj % fences)))
+                     (reduce conj region-queue' (map second same-region-plots))
+                     (reduce conj global-queue (map second other-region-plots))
                      (conj visited? pos)))))
 
         ; Region finished. Take the next plot from the global queue and start processing its region.
@@ -74,9 +59,32 @@ MMMISSJEEE")
 
 (defn part-1 [grid]
   (->> (find-regions grid)
-       (map (fn [{:keys [plots fences]}] (* plots fences)))
+       (map (fn [{:keys [plots fences]}] (* (count plots) (count fences))))
+       (reduce +)))
+
+
+(defn- fences->sides
+  "Given all fence elements as a collection of pairs `[dir pos]`, count the number of fence sides."
+  [fences]
+  (->> fences
+       ; Group by direction and row or col respectively.
+       (map (fn [[d [i j]]] (cond (#{:n :s} d) [[d i] j], (#{:e :w} d) [[d j] i])))
+       (group-by first)
+       (vals)
+       ; Keep only the other, "secondary" indices in ascending order.
+       (map (partial map second))
+       (map sort)
+       ; Count the number of sub-segments with consecutive distances = 1.
+       (mapcat (partial join-connected #(= 1 (- %2 %1))))
+       (count)))
+
+
+(defn part-2 [grid]
+  (->> (find-regions grid)
+       (map (fn [{:keys [plots fences]}] (* (count plots) (fences->sides fences))))
        (reduce +)))
 
 
 (let [grid (char-matrix (str/split-lines (get-puzzle-input 24 12)))]
-  (println "Part 1:" (time (part-1 grid))))
+  (println "Part 1:" (time (part-1 grid)))
+  (println "Part 2:" (time (part-2 grid))))
