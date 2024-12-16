@@ -49,14 +49,28 @@ v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^")
   (let [[h w] (mshape grid)] (and (< -1 i h) (< -1 j w))))
 
 
+;; TODO push the next box, don't forget partially colliding boxes
+(defn- push-double-box [grid p1 dir]
+  (let [c (mget grid p1)
+        p2 (case c \[ (v+ p1 east), \] (v+ p1 west) (throw (ex-info "pushing something weird" {:weird c})))
+        [p'1 p'2] (sort-by second (map #(v+ dir %) [p1 p2]))
+        can-push? (= \. (mget grid p'1) (mget grid p'2))]
+    (if can-push?
+      [(-> grid
+           (mset p1 \.) (mset p2 \')
+           (mset p'1 \[) (mset p'2 \]))
+       true]
+      [grid false])))
+
+
 (defn- push
-  "Given the grid and a point on the grid, attempt to push the box at the given position
-  in the given direction. Returns the new grid and `true` if the push succeeded, `false`
-  otherwise, as a pair."
+  "Given the grid and a point on the grid, attempt to push the box or the robot at the
+  given position in the given direction. Returns the new grid and `true` if the push
+  succeeded, `false` otherwise, as a pair."
   [grid pos dir]
   (assert (on-the-grid? grid pos) "attempt to push outside the grid")
   (let [c (mget grid pos), pos' (v+ pos dir)]
-    (assert (#{\@ \O} c) (format "attempt to push %c != @,O", c))
+    (assert (#{\@ \O \[ \]} c) (format "attempt to push %c != @,O", c))
     (case (mget grid pos')
       \# [grid, false]
       \. [(-> grid (mset pos' c) (mset pos \.)), true]
