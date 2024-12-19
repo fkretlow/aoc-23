@@ -1,63 +1,53 @@
 (ns aoc.24.16
   (:require
+   [aoc.lib.io :refer [get-puzzle-input]]
    [aoc.lib.matrix :refer [char-matrix mfind mget v+]]
+   [clojure.data.priority-map :refer [priority-map]]
    [clojure.string :as str]))
 
+(defn- parse [input] (char-matrix (str/split-lines input)))
 
-(def ^:private test-input
-  "###############
-#.......#....E#
-#.#.###.#.###.#
-#.....#.#...#.#
-#.###.#####.#.#
-#.#.#.......#.#
-#.#.#####.###.#
-#...........#.#
-###.#.#####.#.#
-#...#.....#.#.#
-#.#.#.###.#.#.#
-#.....#...#.#.#
-#.###.#.#.#.#.#
-#S..#.....#...#
-###############")
+(def ^:private dir->vector {:n [-1 0], :e [0 1], :s [1 0], :w [0 -1]})
 
+(defn- walk-forward [[pos dir]]
+  {:pre [(#{:n :e :s :w} dir)]}
+  [(v+ pos (dir->vector dir)) dir])
 
-(def ^:private north [-1 0])
-(def ^:private east [0 1])
-(def ^:private south [1 0])
-(def ^:private west [0 -1])
-(def ^:private dirs {:n north, :e east, :s south, :w west})
+(defn- turn-left [[pos dir]]
+  {:pre [(#{:n :e :s :w} dir)]}
+  [pos (case dir :n :w, :e :n, :s :e, :w :s)])
 
-(defn- turn-left [dir] (case dir :n :w, :e :n, :s :e, :w :s, (throw (ex-info "funny direction" {:direction dir}))))
-(defn- turn-right [dir] (case dir :n :e, :e :s, :s :w, :w :n, (throw (ex-info "funny direction" {:direction dir}))))
+(defn- turn-right [[pos dir]]
+  {:pre [(#{:n :e :s :w} dir)]}
+  [pos (case dir :n :e, :e :s, :s :w, :w :n)])
 
-(defn- parse [input]
-  (let [grid (char-matrix (str/split-lines input))
-        end (first (mfind grid #(= \E %)))
-        pos (first (mfind grid #(= \S %)))
-        dir :e]
-    {:grid grid, :end end, :pos pos, :dir dir}))
+(defn- ->edges [Q pos-and-dir]
+  (->> [[walk-forward 1] [turn-left 1000] [turn-right 1000]]
+       (map (fn [[f cost]] [(f pos-and-dir) cost]))
+       (filter (fn [[pos]] (contains? Q pos)))))
 
+(defn- end? [grid pos] (= \E (mget grid pos)))
 
-(defn- next-moves [grid pos dir]
-  (let [pos' (v+ pos (dirs dir))
-        wall? (= (mget grid pos') \#)]
-    (cond->> [[pos (turn-left dir) 1000] [pos (turn-right dir) 1000]]
-      (not wall?) (cons [pos' dir 1]))))
+(defn- dijkstra [grid]
+  (let [vertices (->> (mfind grid #(not= \# %))
+                      (mapcat #(-> [[% :n] [% :e] [% :s] [% :w]])))
+        start [(first (mfind grid #(= \S %))) :e]]
+    (loop [Q (-> (reduce (fn [Q pos] (conj Q [pos Integer/MAX_VALUE])) (priority-map) vertices)
+                 (assoc start 0)),
+           visited? #{}]
+      (let [[[pos, :as pos-and-dir] path-cost] (peek Q)]
+        (cond
+          (visited? pos-and-dir) (recur (pop Q) visited?),
+          (end? grid pos) (get Q pos-and-dir),
+          :else (recur
+                 (reduce (fn [Q [pos-and-dir step-cost]]
+                           (update Q pos-and-dir #(min % (+ path-cost step-cost))))
+                         Q
+                         (->edges Q pos-and-dir))
+                 (conj visited? pos-and-dir)))))))
 
+(def part-1 dijkstra)
 
-(def ^:private dfs
-  (memoize
-   (fn [grid end pos dir]
-     (println pos dir)
-     (if (= pos end)
-       0
-       (apply min (for [[pos' dir' cost] (next-moves grid pos dir)]
-                    (+ cost (dfs grid end pos' dir'))))))))
+(let [grid (parse (get-puzzle-input 24 16))]
+  (println "Part 1:" (time (part-1 grid))))
 
-
-(defn part-1 [{:keys [grid end pos dir]}]
-  (dfs grid end pos dir))
-
-
-(part-1 (parse test-input))
