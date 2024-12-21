@@ -103,3 +103,16 @@
         (recur segments (conj segment cur) more)
         (recur (conj segments segment) [cur] more))
       (conj segments segment))))
+
+
+(defn keys-with-min-values
+  "Given a map `m`, return a seq of all keys of `m` whose value
+  is minimal among all values of `m`."
+  [m]
+  (second
+   (reduce (fn [[min, :as acc] [k v]]
+             (cond (< v min) [v [k]]
+                   (= v min) (update acc 1 conj k)
+                   (> v min) acc))
+           (let [[k v] (first m)] [v [k]])
+           (rest m))))
